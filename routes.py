@@ -2,14 +2,8 @@ from app import app
 from flask import render_template, redirect, url_for, request, flash, session
 from models import db, User, ParkingLot, ParkingSpot, Reservation
 from werkzeug.security import generate_password_hash, check_password_hash
+from functools import wraps
 
-@app.route('/')
-def index():
-    if 'user_id' in session:
-        return render_template('index.html')
-    else:
-        flash('You need to log in first.')
-        return redirect(url_for('login'))
 
 @app.route('/login')
 def login():
@@ -25,7 +19,7 @@ def login_post():
         return redirect(url_for('login'))
     session['user_id'] = user.id
     flash('Login successful!')
-    return redirect(url_for('index'))
+    return redirect(url_for('profile'))
     
 
 
@@ -56,4 +50,64 @@ def register_post():
     new_user = User(username=username, password_hash=password_hash)
     db.session.add(new_user)
     db.session.commit()
+    return redirect(url_for('login'))
+
+def auth_required(func):
+    @wraps(func)
+    def inner(*args, **kwargs):
+        if 'user_id' in session:
+            return func(*args, **kwargs)
+        else:
+            flash('You need to log in first.')
+            return redirect(url_for('login'))
+    return inner
+
+
+
+
+@app.route('/')
+@auth_required
+def index():
+    return render_template('index.html')
+    
+
+@app.route('/profile')
+@auth_required
+def profile():
+    user=User.query.get(session['user_id'])
+    return render_template('profile.html',user=user)
+
+@app.route('/profile', methods=['POST'])
+@auth_required
+def profile_post():
+    username= request.form.get('username')
+    cpassword=request.form.get('cpassword')
+    password=request.form.get('password')
+
+    if not username or not cpassword or not password:
+        flash('All fields are required.')
+        return redirect(url_for('profile'))
+    
+    user=User.query.get(session['user_id'])
+    if not check_password_hash(user.password_hash, cpassword):
+        flash('Current password is incorrect.')
+        return redirect(url_for('profile'))
+    
+    if username!= user.username:
+        new_user = User.query.filter_by(username=username).first()
+        if new_user:
+            flash('Username already exists. Please choose a different one.')
+            return redirect(url_for('profile'))
+        
+    user.username = username
+    user.password_hash = generate_password_hash(password)
+    db.session.commit()
+    flash('Profile updated successfully.')
+    return redirect(url_for('profile'))
+
+
+@app.route('/logout')
+@auth_required
+def logout():
+    session.pop('user_id')
     return redirect(url_for('login'))

@@ -1,6 +1,7 @@
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from app import app
+from werkzeug.security import generate_password_hash
 
 db = SQLAlchemy(app)
 
@@ -39,9 +40,7 @@ class ParkingLot(db.Model):
     
 
 class ParkingSpot(db.Model):
-    """
-    Represents a single parking spot within a lot.
-    """
+    
     __tablename__ = 'parking_spots'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -73,3 +72,25 @@ class Reservation(db.Model):
 
     def __repr__(self):
         return f'<Reservation {self.id} for User {self.user_id}>'
+    
+
+with app.app_context():
+    db.create_all()
+    print("Database tables created successfully.")
+    admin = User.query.filter_by(is_admin=True).first()       
+    if not admin:
+        print("No admin user found. Creating a default admin user...")
+        password_for_admin = 'admin' # !! IMPORTANT: Change this in production !!
+            # You might want to get this from environment variables or a config file in a real app
+
+            # Generate password hash
+        hashed_password = generate_password_hash(password_for_admin)
+
+            # Create the new admin user
+        admin = User(
+            username='admin',
+            password_hash=hashed_password,
+            is_admin=True
+            )
+        db.session.add(admin)
+        db.session.commit()

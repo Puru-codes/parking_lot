@@ -1,0 +1,29 @@
+{% extends "user_base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Book the Parking Spot</div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Spot ID</label>
+                        <input type="text" class="form-control" value="{{ spot.id }}" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Location</label>
+                        <input type="text" class="form-control" value="{{ spot.parking_lot.prime_location_name }} (Spot {{ spot.spot_number }})" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label for="vehicle_number" class="form-label">Vehicle Number</label>
+                        <input type="text" name="vehicle_number" id="vehicle_number" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Reserve</button>
+                    <a href="{{ url_for('user_dashboard') }}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

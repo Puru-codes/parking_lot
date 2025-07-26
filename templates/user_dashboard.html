@@ -1,0 +1,92 @@
+{% extends "user_base.html" %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        Recent Parking History
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Location</th>
+                        <th>Vehicle No.</th>
+                        <th>Timestamp</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for res in reservations %}
+                    <tr>
+                        <td>{{ res.parking_spot.parking_lot.prime_location_name }} (Spot {{ res.parking_spot.spot_number }})</td>
+                        <td>{{ res.vechile_number }}</td>
+                        <td>{{ res.parking_timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>
+                            {% if res.leaving_timestamp %}
+                                <span class="badge bg-secondary">Parked Out</span>
+                            {% else %}
+                                <a href="{{ url_for('release_spot', reservation_id=res.id) }}" class="btn btn-sm btn-warning">Release</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="4" class="text-center">No parking history found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        Search Parking Lots
+    </div>
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('user_dashboard') }}" class="mb-4">
+            <div class="input-group">
+                <input type="text" name="q" class="form-control" placeholder="Search by location or pin code..." value="{{ request.args.get('q', '') }}">
+                <button class="btn btn-outline-primary" type="submit">Search</button>
+            </div>
+        </form>
+
+        {% if request.args.get('q') %}
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Address</th>
+                        <th>Availability</th>
+                        <th>Price/hr</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {# Now loop through the parking_lots list #}
+                    {% for lot in parking_lots %}
+                    <tr>
+                        <td>{{ lot.prime_location_name }}</td>
+                        <td>{{ lot.spots|selectattr('status', 'equalto', 'A')|list|length }} spots</td>
+                        <td>₹{{ "%.2f"|format(lot.price) }}</td>
+<td>
+    {% if (lot.spots|selectattr('status', 'equalto', 'A')|list)|length > 0 %}
+        <a href="{{ url_for('book_spot', spot_id=(lot.spots|selectattr('status', 'equalto', 'A')|first).id) }}" class="btn btn-sm btn-success">Book</a>
+    {% else %}
+        <button class="btn btn-sm btn-secondary" disabled>Full</button>
+    {% endif %}
+</td>
+                    </tr>
+                    {# Add an 'else' to the for loop to handle no results #}
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center">No parking lots found matching your search.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

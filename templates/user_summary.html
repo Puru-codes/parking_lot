@@ -1,0 +1,38 @@
+{% extends "user_base.html" %}
+{% block content %}
+<h3>Your Parking Summary</h3>
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Monthly Parking Count</h5>
+        <canvas id="monthlyParkingChart"></canvas>
+    </div>
+</div>
+
+<script>
+const chartData = {{ chart_data|tojson|safe }};
+
+new Chart(document.getElementById('monthlyParkingChart'), {
+    type: 'bar',
+    data: {
+        labels: chartData.labels,
+        datasets: [{
+            label: 'Number of Parkings',
+            data: chartData.values,
+            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

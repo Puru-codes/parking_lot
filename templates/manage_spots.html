@@ -31,7 +31,7 @@
                     {% endif %}
                 </td>
                 <td>
-                    {# Find the active reservation for this spot (one with no leaving_timestamp) #}
+                    
                     {% set current_reservation = spot.reservations | selectattr('leaving_timestamp', 'none') | first %}
                     {% if current_reservation and current_reservation.user %}
                         {{ current_reservation.user.username }}
@@ -47,7 +47,7 @@
                     {% endif %}
                 </td>
                 <td>
-                    {# Placeholder for admin action: Force Vacate Spot #}
+                    
                     {% if spot.status == 'O' %}
                         <form action="{{ url_for('force_vacate_spot', spot_id=spot.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to force vacate this spot?');">
                             <button type="submit" class="btn btn-sm btn-warning" title="Force Vacate">

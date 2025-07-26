@@ -1,0 +1,47 @@
+{% extends "admin_base.html" %}
+{% block content %}
+<h3>Search</h3>
+<form method="POST" class="card p-4">
+    <div class="row g-3 align-items-end">
+        <div class="col-md-5">
+            <label for="search_by" class="form-label">Search By</label>
+            <select name="search_by" id="search_by" class="form-select">
+                <option value="user_username">User username</option>
+                <option value="location">Parking Location</option>
+            </select>
+        </div>
+        <div class="col-md-5">
+            <label for="search_string" class="form-label">Search String</label>
+            <input type="text" name="search_string" id="search_string" class="form-control" required>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Search</button>
+        </div>
+    </div>
+</form>
+
+{% if results is not none %}
+<h4 class="mt-5">Search Results</h4>
+{% if results %}
+    <div class="list-group">
+    {% if search_type == 'user_username' %}
+        {% for user in results %}
+            <div class="list-group-item">
+                <h5 class="mb-1">{{ user.name }} ({{ user.username }})</h5>
+                <p class="mb-1">{{ user.email }}</p>
+            </div>
+        {% endfor %}
+    {% elif search_type == 'location' %}
+        {% for lot in results %}
+            <div class="list-group-item">
+                <h5 class="mb-1">{{ lot.prime_location_name }}</h5>
+                <p class="mb-1">{{ lot.address }}, {{ lot.pin_code }}</p>
+            </div>
+        {% endfor %}
+    {% endif %}
+    </div>
+{% else %}
+    <p>No results found.</p>
+{% endif %}
+{% endif %}
+{% endblock %}

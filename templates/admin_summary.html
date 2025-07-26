@@ -1,0 +1,67 @@
+{% extends "admin_base.html" %}
+{% block content %}
+<h3>Summary & Statistics</h3>
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Total Revenue by Parking Lot (₹)</h5>
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Live Occupancy</h5>
+                <canvas id="occupancyChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+const revenueData = {{ revenue_data|tojson|safe }};
+const occupancyData = {{ occupancy_data|tojson|safe }};
+
+
+new Chart(document.getElementById('revenueChart'), {
+    type: 'doughnut',
+    data: {
+        labels: revenueData.labels,
+        datasets: [{
+            label: 'Revenue in ₹',
+            data: revenueData.values,
+            backgroundColor: ['#0d6efd', '#198754', '#ffc107', '#dc3545', '#6f42c1', '#fd7e14'],
+        }]
+    }
+});
+
+
+new Chart(document.getElementById('occupancyChart'), {
+    type: 'bar',
+    data: {
+        labels: occupancyData.labels,
+        datasets: [
+            {
+                label: 'Occupied',
+                data: occupancyData.occupied,
+                backgroundColor: '#dc3545'
+            },
+            {
+                label: 'Available',
+                data: occupancyData.available,
+                backgroundColor: '#198754'
+            }
+        ]
+    },
+    options: {
+        scales: {
+            x: { stacked: true },
+            y: { stacked: true, beginAtZero: true }
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -35,18 +35,12 @@
             <label for="maximum_number_of_spots" class="form-label">Maximum Number of Spots</label>
             <input type="number" class="form-control" id="maximum_number_of_spots" name="maximum_number_of_spots"
                    value="{{ parking_lot.maximum_number_of_spots if parking_lot else '' }}" required min="1"
-                   {% if parking_lot %}readonly{% endif %}> {# Disable editing spots for existing lots #}
+                   {% if parking_lot %}readonly{% endif %}> 
             {% if parking_lot %}
                 <div class="form-text text-muted">Number of spots cannot be changed for existing lots.</div>
             {% endif %}
         </div>
-        {# Optional: Description field based on wireframe #}
-        {#
-        <div class="mb-3">
-            <label for="description" class="form-label">Description (Optional)</label>
-            <textarea class="form-control" id="description" name="description" rows="3">{{ parking_lot.description if parking_lot else '' }}</textarea>
-        </div>
-        #}
+
 
         <button type="submit" class="btn btn-success">
             <i class="fas fa-save me-2"></i>{% if parking_lot %}Update Lot{% else %}Add Lot{% endif %}

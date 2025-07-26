@@ -1,8 +1,6 @@
-{% extends "layout.html" %}
+{% extends "user_base.html" %}
 
-{% block title %}My Profile{% endblock %}
-
-{% block body %}
+{% block content %}
 <h2 class="mb-4">Welcome, {{ user.username }}!</h2>
 
 <div class="card shadow-sm mb-4">
@@ -39,27 +37,6 @@
         </form>
     </div>
 </div>
-
-
-
-
-{% if session.get('is_admin') %}
-  <h3  class="mt-5 mb-3">Admin Dashboard</h3>
-<div class="card">                 
-    <div class="card-body">
-        <p>Admin functionalities such as managing parking lots, users, and reservations.</p>
-        <ul>
-            <li><a href="{{ url_for('admin') }}">Manage Parking Lots</a></li>
-        </ul>
-    </div>
-{% else %}
-    <h3 class="mt-5 mb-3">My Parking Summary (Coming Soon)</h3>
-<div class="card">
-    <div class="card-body">
-        <p>Chart displaying your personal parking history and costs.</p>
-    </div>
-</div>
-{% endif %}
 
 
 {% endblock %}

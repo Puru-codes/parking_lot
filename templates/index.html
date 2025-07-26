@@ -1,7 +1,38 @@
-{% extends 'layout.html' %}
+{% extends "layout.html" %}
+
 {% block title %}Home{% endblock %}
 
 {% block body %}
-<h1 class="text-center">Welcome to the Parking App</h1>
+<div class="p-5 mb-4 bg-light rounded-3">
+    <div class="container-fluid py-5">
+        <h1 class="display-5 fw-bold">Welcome to the Parking App!</h1>
+        <p class="col-md-8 fs-4">Find and manage your parking spots with ease.</p>
+        {% if 'user_id' in session %}
+            <p>Hello, {{ session.get('username') }}!</p>
+            {% if session.get('is_admin') %}
+                <a class="btn btn-primary btn-lg" href="{{ url_for('admin') }}">Go to Admin Dashboard <i class="fas fa-arrow-right ms-2"></i></a>
+            {% else %}
+                <a class="btn btn-primary btn-lg" href="{{ url_for('profile') }}">View My Profile <i class="fas fa-user ms-2"></i></a>
+            {% endif %}
+        {% else %}
+            <a class="btn btn-primary btn-lg" href="{{ url_for('login') }}">Login <i class="fas fa-sign-in-alt ms-2"></i></a>
+            <a class="btn btn-outline-secondary btn-lg ms-2" href="{{ url_for('register') }}">Register <i class="fas fa-user-plus ms-2"></i></a>
+        {% endif %}
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <h3>Our Mission</h3>
+        <p>To provide a seamless and efficient parking experience for all drivers, simplifying the search for available spots and managing your parking needs.</p>
+    </div>
+    <div class="col-md-6">
+        <h3>Key Features</h3>
+        <ul>
+            <li>Easy registration and login</li>
+            <li>Comprehensive admin dashboard for lot management</li>
+            <li>Automated parking spot allocation</li>
+            <li>Real-time spot status updates</li>
+        </ul>
+    </div>
+</div>
 {% endblock %}
-

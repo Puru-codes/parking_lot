@@ -1,0 +1,90 @@
+{% extends "layout.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block body %}
+<h2 class="mb-4">Admin Dashboard - Manage Parking Lots</h2>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Parking Lot List</h3>
+    <a href="{{ url_for('add_parking_lot') }}" class="btn btn-primary">
+        <i class="fas fa-plus-circle me-2"></i>Add New Parking Lot
+    </a>
+</div>
+
+{% if parking_lots %}
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Location Name</th>
+                <th>Address</th>
+                <th>Pincode</th>
+                <th>Price/Hr</th>
+                <th>Max Spots</th>
+                <th>Available Spots</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for lot in parking_lots %}
+            <tr>
+                <td>{{ lot.id }}</td>
+                <td>{{ lot.prime_location_name }}</td>
+                <td>{{ lot.address }}</td>
+                <td>{{ lot.pin_code }}</td>
+                <td>${{ '{:.2f}'.format(lot.price) }}</td>
+                <td>{{ lot.maximum_number_of_spots }}</td>
+                <td>
+                    {# Calculate available spots: total spots - occupied spots #}
+                    {# This efficiently counts 'A' status spots related to the lot #}
+                    {{ lot.spots | selectattr('status', 'equalto', 'A') | list | length }} / {{ lot.maximum_number_of_spots }}
+                </td>
+                <td>
+                    <a href="{{ url_for('edit_parking_lot', lot_id=lot.id) }}" class="btn btn-sm btn-info me-2" title="Edit Lot">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="{{ url_for('manage_parking_spots', lot_id=lot.id) }}" class="btn btn-sm btn-secondary me-2" title="Manage Spots">
+                        <i class="fas fa-th-list"></i>
+                    </a>
+                    <form action="{{ url_for('delete_parking_lot', lot_id=lot.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this parking lot? This action cannot be undone and will delete all associated spots.');">
+                        <button type="submit" class="btn btn-sm btn-danger" title="Delete Lot">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info" role="alert">
+    No parking lots found. Click "Add New Parking Lot" to get started!
+</div>
+{% endif %}
+
+{# Admin Summary Charts (Placeholders) #}
+<h3 class="mt-5 mb-3">Summary Charts (Coming Soon)</h3>
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Lot Occupancy Overview</h5>
+                <p>Chart displaying overall occupancy across all lots.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Revenue Trends</h5>
+                <p>Chart displaying parking revenue over time.</p>
+                {# You'd integrate a charting library like Chart.js here #}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

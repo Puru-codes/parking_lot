@@ -1,38 +1,65 @@
-{% extends 'layout.html' %}
-{% block title %}Profile{% endblock %}
+{% extends "layout.html" %}
+
+{% block title %}My Profile{% endblock %}
 
 {% block body %}
-<h1 class=""display-1">
-Hello   
-<span class="text-muted">@{{user.username}}</span>
-</h1>
-<div class="profile-pic">
-    <img src="https://api.dicebear.com/9.x/pixel-art/svg?seed={{user.username}}" alt="profile-pic" class="img-fluid rounded-circle" style="width: 150px; height: 150px;">
+<h2 class="mb-4">Welcome, {{ user.username }}!</h2>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header">
+        User Details
+    </div>
+    <div class="card-body">
+        <p><strong>Username:</strong> {{ user.username }}</p>
+        <p><strong>Full Name:</strong> {{ user.name if user.name else 'N/A' }}</p>
+        <p><strong>Email:</strong> {{ user.email if user.email else 'N/A' }}</p>
+        <p><strong>Role:</strong> {% if user.is_admin %}Admin{% else %}Regular User{% endif %}</p>
+    </div>
 </div>
-<a href="{{url_for('logout')}}" class="btn btn-danger">Logout</a>
-<form action="" method="post" class="form">
-     <div class="formgroup">
-        <label for="username" class="form-label">Username</label>
-        <input type="text" class="form-control" id="username" name="username" value="{{user.username}}" required>   
-     </div>
-      <div class="formgroup">
-        <label for="cpassword" class="form-label">Current Password</label>
-        <input type="password" class="form-control" id="cpassword" name="cpassword" required>   
-     </div>
-      <div class="formgroup">
-        <label for="password" class="form-label">New Password</label>
-        <input type="password" class="form-control" id="password" name="password" required>
-        </div>
-        <div class="formgroup">
-            <input type="submit" class="btn btn-primary" value="Update Profile">
-        </div>
+
+<div class="card shadow-sm">
+    <div class="card-header">
+        Update Profile / Change Password
+    </div>
+    <div class="card-body">
+        <form action="{{ url_for('profile') }}" method="POST">
+            <div class="mb-3">
+                <label for="username" class="form-label">New Username</label>
+                <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="cpassword" class="form-label">Current Password</label>
+                <input type="password" class="form-control" id="cpassword" name="cpassword" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">New Password</label>
+                <input type="password" class="form-control" id="password" name="password" required minlength="6">
+            </div>
+            <button type="submit" class="btn btn-success">Update Profile</button>
+        </form>
+    </div>
+</div>
 
 
 
 
-
-</form>
-
+{% if session.get('is_admin') %}
+  <h3  class="mt-5 mb-3">Admin Dashboard</h3>
+<div class="card">                 
+    <div class="card-body">
+        <p>Admin functionalities such as managing parking lots, users, and reservations.</p>
+        <ul>
+            <li><a href="{{ url_for('admin') }}">Manage Parking Lots</a></li>
+        </ul>
+    </div>
+{% else %}
+    <h3 class="mt-5 mb-3">My Parking Summary (Coming Soon)</h3>
+<div class="card">
+    <div class="card-body">
+        <p>Chart displaying your personal parking history and costs.</p>
+    </div>
+</div>
+{% endif %}
 
 
 {% endblock %}

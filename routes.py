@@ -360,25 +360,22 @@ def delete_parking_spot(spot_id):
     flash(f'Spot {spot_num} in lot "{lot_name}" has been deleted.', 'success')
     return redirect(url_for('admin'))
 
-# In your routes.py file...
 
-
-# --- USER FUNCTIONALITY ROUTES ---
 
 @app.route('/dashboard')
 @auth_required
 def user_dashboard():
     user_id = session['user_id']
     
-    # Fetch user's recent reservations
+    
     reservations = Reservation.query.filter_by(user_id=user_id)\
                                     .order_by(Reservation.parking_timestamp.desc()).limit(5).all()
     
-    # Handle search functionality
+    
     search_query = request.args.get('q')
     parking_lots = []
     if search_query:
-        # Search by location name or pin code
+        
         parking_lots = ParkingLot.query.filter(
             or_(
                 ParkingLot.prime_location_name.ilike(f'%{search_query}%'),
@@ -393,7 +390,7 @@ def user_dashboard():
 def book_spot(spot_id):
     spot = ParkingSpot.query.get_or_404(spot_id)
     
-    # Check if the spot is available
+    
     if spot.status != 'A':
         flash('This spot is already occupied or unavailable.', 'warning')
         return redirect(url_for('user_dashboard'))
@@ -404,14 +401,14 @@ def book_spot(spot_id):
             flash('Vehicle number is required.', 'danger')
             return redirect(url_for('book_spot', spot_id=spot_id))
 
-        # Create a new reservation
+        
         new_reservation = Reservation(
             user_id=session['user_id'],
             spot_id=spot.id,
             vechile_number=vehicle_number
         )
         
-        # Mark the spot as occupied
+        
         spot.status = 'O'
         
         db.session.add(new_reservation)
@@ -427,28 +424,28 @@ def book_spot(spot_id):
 def release_spot(reservation_id):
     reservation = Reservation.query.get_or_404(reservation_id)
     
-    # Ensure the user owns this reservation and it's active
+    
     if reservation.user_id != session['user_id'] or reservation.leaving_timestamp is not None:
         flash('Invalid reservation or already released.', 'danger')
         return redirect(url_for('user_dashboard'))
         
-    # Calculate duration and cost for display
+    
     parking_duration = datetime.utcnow() - reservation.parking_timestamp
     duration_hours = parking_duration.total_seconds() / 3600
     price_per_hour = reservation.parking_spot.parking_lot.price
     cost = duration_hours * price_per_hour
     
-    # Format duration for display
+    
     total_minutes = int(parking_duration.total_seconds() / 60)
     hours, minutes = divmod(total_minutes, 60)
     duration_str = f"{hours} hours, {minutes} minutes"
 
     if request.method == 'POST':
-        # Update reservation details
+        
         reservation.leaving_timestamp = datetime.utcnow()
         reservation.parking_cost = cost
         
-        # Update spot status
+        
         reservation.parking_spot.status = 'A'
         
         db.session.commit()
@@ -468,7 +465,7 @@ def release_spot(reservation_id):
 @auth_required
 def user_summary():
     user_id = session['user_id']
-    # Query to count parkings grouped by month
+    
     monthly_data = db.session.query(
         db.func.strftime('%Y-%m', Reservation.parking_timestamp),
         db.func.count(Reservation.id)

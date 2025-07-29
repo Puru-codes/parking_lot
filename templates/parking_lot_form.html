@@ -27,7 +27,7 @@
                    value="{{ parking_lot.pin_code if parking_lot else '' }}" required>
         </div>
         <div class="mb-3">
-            <label for="price" class="form-label">Price per Hour ($)</label>
+            <label for="price" class="form-label">Price per Hour (₹)</label>
             <input type="number" step="0.01" class="form-control" id="price" name="price"
                    value="{{ '{:.2f}'.format(parking_lot.price) if parking_lot else '0.00' }}" required min="0.01">
         </div>
@@ -41,7 +41,6 @@
             {% endif %}
         </div>
 
-
         <button type="submit" class="btn btn-success">
             <i class="fas fa-save me-2"></i>{% if parking_lot %}Update Lot{% else %}Add Lot{% endif %}
         </button>
@@ -50,4 +49,17 @@
         </a>
     </form>
 </div>
+
+{% if parking_lot %}
+<div class="card p-4 mt-4 border-danger">
+    <h5 class="card-title text-danger">Danger Zone</h5>
+    <p>Deleting a parking lot is permanent and cannot be undone. This will also delete all associated spots.</p>
+    <form method="POST" action="{{ url_for('delete_parking_lot', lot_id=parking_lot.id) }}">
+        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you absolutely sure you want to delete this parking lot?');">
+            Delete This Parking Lot
+        </button>
+    </form>
+</div>
+{% endif %}
+
 {% endblock %}

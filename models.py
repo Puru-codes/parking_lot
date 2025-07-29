@@ -59,7 +59,7 @@ class ParkingSpot(db.Model):
 
     
     __table_args__ = (db.UniqueConstraint('lot_id', 'spot_number', name='_lot_spot_uc'),)
-    reservations = db.relationship('Reservation', backref='parking_spot', lazy=True)
+    reservations = db.relationship('Reservation', backref='parking_spot', lazy=True,cascade="all, delete-orphan")
 
 
     def __repr__(self):

@@ -1,0 +1,41 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Spot Details{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                Details for Spot {{ spot.spot_number }} (in {{ spot.parking_lot.prime_location_name }})
+            </div>
+            <div class="card-body">
+                <p><strong>Spot ID:</strong> {{ spot.id }}</p>
+                <p><strong>Status:</strong>
+                    {% if spot.status == 'O' %}
+                        <span class="badge bg-danger">Occupied</span>
+                    {% else %}
+                        <span class="badge bg-success">Available</span>
+                    {% endif %}
+                </p>
+
+                {% if active_reservation %}
+                    <hr>
+                    <h6>Active Reservation Details:</h6>
+                    <p><strong>User:</strong> {{ active_reservation.user.username }}</p>
+                    <p><strong>Vehicle Number:</strong> {{ active_reservation.vehicle_number }}</p>
+                    <p><strong>Parked At:</strong> {{ active_reservation.parking_timestamp.strftime('%Y-%m-%d %H:%M') }}</p>
+                {% endif %}
+
+                <hr>
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('admin') }}" class="btn btn-secondary">Back to Dashboard</a>
+                    <form action="{{ url_for('delete_parking_spot', spot_id=spot.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this single spot?');">
+                         <button type="submit" class="btn btn-danger">Delete This Spot</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

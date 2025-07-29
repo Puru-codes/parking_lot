@@ -253,30 +253,41 @@ def edit_parking_lot(lot_id):
 @app.route('/admin/parking_lot/delete/<int:lot_id>', methods=['POST'])
 @admin_required
 def delete_parking_lot(lot_id):
+    """Handles the deletion logic, called from the edit page."""
     parking_lot = ParkingLot.query.get_or_404(lot_id)
-
-    occupied_spots_count = ParkingSpot.query.filter_by(lot_id=lot_id, status='O').count()
-    if occupied_spots_count > 0:
-        flash(f'Cannot delete parking lot "{parking_lot.prime_location_name}" because there are {occupied_spots_count} occupied spots.', 'danger')
-        return redirect(url_for('admin'))
-
-    try:
-        db.session.delete(parking_lot)
-        db.session.commit()
-        flash(f'Parking Lot "{parking_lot.prime_location_name}" deleted successfully!', 'success')
-    except Exception as e:
-        db.session.rollback()
-        flash(f'Error deleting parking lot: {e}', 'danger')
-
+    if ParkingSpot.query.filter_by(lot_id=lot_id, status='O').count() > 0:
+        flash(f'Cannot delete "{parking_lot.prime_location_name}" as it has occupied spots.', 'danger')
+        return redirect(url_for('edit_parking_lot', lot_id=lot_id))
+    
+    lot_name = parking_lot.prime_location_name
+    db.session.delete(parking_lot)
+    db.session.commit()
+    flash(f'Parking Lot "{lot_name}" and all its spots were deleted.', 'success')
     return redirect(url_for('admin'))
 
-@app.route('/admin/parking_lot/<int:lot_id>/spots')
+@app.route('/admin/spot/details/<int:spot_id>')
 @admin_required
-def manage_parking_spots(lot_id):
-    parking_lot = ParkingLot.query.get_or_404(lot_id)
-    parking_spots = ParkingSpot.query.filter_by(lot_id=lot_id).order_by(ParkingSpot.spot_number).all()
+def spot_details(spot_id):
+    """Shows a details page for a single parking spot."""
+    spot = ParkingSpot.query.get_or_404(spot_id)
+    active_reservation = Reservation.query.filter_by(spot_id=spot.id, leaving_timestamp=None).first()
+    return render_template('spot_details.html', spot=spot, active_reservation=active_reservation, title="Spot Details")
 
-    return render_template('manage_spots.html', parking_lot=parking_lot, parking_spots=parking_spots)
+@app.route('/admin/spot/delete/<int:spot_id>', methods=['POST'])
+@admin_required
+
+def delete_parking_spot(spot_id):
+    """Handles deletion of a single spot."""
+    spot = ParkingSpot.query.get_or_404(spot_id)
+    if spot.status == 'O':
+        flash('Cannot delete an occupied spot.', 'danger')
+        return redirect(url_for('spot_details', spot_id=spot.id))
+    
+    lot_id = spot.lot_id # Save lot_id for redirect before deleting
+    db.session.delete(spot)
+    db.session.commit()
+    flash('Spot has been deleted.', 'success')
+    return redirect(url_for('edit_parking_lot', lot_id=lot_id))
 
 
 @app.route('/admin/users')
@@ -341,24 +352,6 @@ def admin_summary():
         occupancy_data=occupancy_data
     )
 
-@app.route('/admin/parking_spot/delete/<int:spot_id>', methods=['POST'])
-@admin_required
-def delete_parking_spot(spot_id):
-    spot = ParkingSpot.query.get_or_404(spot_id)
-    
-    if spot.status == 'O':
-        flash(f'Cannot delete Spot {spot.spot_number} as it is currently occupied.', 'danger')
-        return redirect(url_for('admin'))
-        
-
-    lot_name = spot.parking_lot.prime_location_name
-    spot_num = spot.spot_number
-
-    db.session.delete(spot)
-    db.session.commit()
-    
-    flash(f'Spot {spot_num} in lot "{lot_name}" has been deleted.', 'success')
-    return redirect(url_for('admin'))
 
 
 

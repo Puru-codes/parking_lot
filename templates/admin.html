@@ -1,5 +1,7 @@
 {% extends "admin_base.html" %}
 
+{% block title %}Admin Dashboard{% endblock %}
+
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h3>Parking Lots</h3>
@@ -15,22 +17,16 @@
                 <h6 class="card-subtitle mb-2 text-muted">{{ lot.address }}</h6>
                 <div class="d-flex justify-content-between">
                     <span>{{ lot.spots|selectattr('status', 'equalto', 'O')|list|length }} / {{ lot.spots|length }} Occupied</span>
-                    <a href="{{ url_for('edit_parking_lot', lot_id=lot.id) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                    <a href="{{ url_for('edit_parking_lot', lot_id=lot.id) }}" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-edit"></i> Manage / Edit
+                    </a>
                 </div>
                 <hr>
                 <div class="d-flex flex-wrap border p-2 rounded">
                     {% for spot in lot.spots %}
-                    <a class="m-1 spot-icon" 
-   data-bs-toggle="modal" 
-   data-bs-target="#spotModal" 
-   data-spot-id="{{ spot.id }}" 
-   data-spot-number="{{ spot.spot_number }}"
-   data-lot-name="{{ lot.prime_location_name }}"
-   data-status="{{ 'Occupied' if spot.status == 'O' else 'Available' }}"
-   data-reservation-user="{{ (spot.reservations|selectattr('leaving_timestamp', 'none')|first).user.username if spot.status == 'O' else 'N/A' }}"
-   data-reservation-time="{{ (spot.reservations|selectattr('leaving_timestamp', 'none')|first).parking_timestamp.strftime('%Y-%m-%d %H:%M') if spot.status == 'O' else 'N/A' }}">
-    <i class="fas fa-car fs-4 {{ 'text-danger' if spot.status == 'O' else 'text-success' }}"></i>
-</a>
+                    <a href="{{ url_for('spot_details', spot_id=spot.id) }}" class="m-1" title="View Details for Spot {{ spot.spot_number }}">
+                        <i class="fas fa-car fs-4 {{ 'text-danger' if spot.status == 'O' else 'text-success' }}"></i>
+                    </a>
                     {% endfor %}
                 </div>
             </div>
@@ -40,59 +36,4 @@
     <p>No parking lots found. <a href="{{ url_for('add_parking_lot') }}">Add one now</a>.</p>
     {% endfor %}
 </div>
-
-<div class="modal fade" id="spotModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalTitle">Spot Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p><strong>Spot ID:</strong> <span id="modalSpotId"></span></p>
-                <p><strong>Status:</strong> <span id="modalSpotStatus"></span></p>
-                
-                <div id="occupiedDetails" style="display: none;">
-                    <hr>
-                    <h6>Occupied By:</h6>
-                    <p><strong>User:</strong> <span id="modalReservationUser"></span></p>
-                    <p><strong>Parked At:</strong> <span id="modalReservationTime"></span></p>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <form method="POST" id="deleteSpotForm">
-                    <button type="submit" class="btn btn-danger">Delete Spot</button>
-                </form>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- <script>
-const spotModal = document.getElementById('spotModal');
-spotModal.addEventListener('show.bs.modal', event => {
-    const icon = event.relatedTarget;
-    const spotId = icon.getAttribute('data-spot-id');
-    const spotNumber = icon.getAttribute('data-spot-number');
-    const lotName = icon.getAttribute('data-lot-name');
-    const status = icon.getAttribute('data-status');
-    
-    document.getElementById('modalTitle').textContent = `Details for Spot ${spotNumber} (${lotName})`;
-    document.getElementById('modalSpotId').textContent = spotId;
-    document.getElementById('modalSpotStatus').textContent = status;
-    
-    const occupiedDetailsDiv = document.getElementById('occupiedDetails');
-    if (status === 'Occupied') {
-        document.getElementById('modalReservationUser').textContent = icon.getAttribute('data-reservation-user');
-        document.getElementById('modalReservationTime').textContent = icon.getAttribute('data-reservation-time');
-        occupiedDetailsDiv.style.display = 'block';
-    } else {
-        occupiedDetailsDiv.style.display = 'none';
-    }
-    
-   
-    document.getElementById('deleteSpotForm').action = `/admin/parking_spot/delete/${spotId}`;
-});
-</script> -->
 {% endblock %}
